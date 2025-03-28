@@ -37,7 +37,7 @@ namespace MyTestApi.DTOs.Stock
         public string Industry { get; set; } = string.Empty;
 
         [Required]
-        [Range(1, long.MaxValue, ErrorMessage = "Market Capital must be worth more than $1")]
+        [Range(1, 10000000000000, ErrorMessage = "Market Capital must be worth more than $1")]
         public long MarketCap { get; set; }
     }
 }
