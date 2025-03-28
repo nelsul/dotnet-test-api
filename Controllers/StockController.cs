@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyTestApi.Data;
 using MyTestApi.DTOs.Stock;
+using MyTestApi.Interfaces;
 using MyTestApi.Mappers;
 
 namespace MyTestApi.Controllers
@@ -14,17 +15,17 @@ namespace MyTestApi.Controllers
     [Route("api/[controller]")]
     public class StockController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+        private readonly IStockRepository _stockRepo;
 
-        public StockController(ApplicationDBContext context)
+        public StockController(IStockRepository stockRepo)
         {
-            _context = context;
+            _stockRepo = stockRepo;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var stocks = await _context.Stocks.ToListAsync();
+            var stocks = await _stockRepo.GetAllAsync();
 
             var stockDTOs = stocks.Select(s => s.ToStockDTO());
 
@@ -34,7 +35,7 @@ namespace MyTestApi.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var stock = await _context.Stocks.FindAsync(id);
+            var stock = await _stockRepo.GetByIdAsync(id);
 
             if (stock == null)
             {
@@ -49,8 +50,7 @@ namespace MyTestApi.Controllers
         {
             var stock = createStockDTO.ToStock();
 
-            await _context.Stocks.AddAsync(stock);
-            await _context.SaveChangesAsync();
+            await _stockRepo.CreateAsync(stock);
 
             return CreatedAtAction(nameof(GetById), new { id = stock.Id }, stock.ToStockDTO());
         }
