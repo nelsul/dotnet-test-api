@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyTestApi.Data;
+using MyTestApi.Mappers;
 
 namespace MyTestApi.Controllers
 {
@@ -24,7 +25,9 @@ namespace MyTestApi.Controllers
         {
             var stocks = await _context.Stocks.ToListAsync();
 
-            return Ok(stocks);
+            var stockDTOs = stocks.Select(s => s.ToStockDTO());
+
+            return Ok(stockDTOs);
         }
 
         [HttpGet("{id:int}")]
@@ -37,7 +40,7 @@ namespace MyTestApi.Controllers
                 return NotFound();
             }
 
-            return Ok(stock);
+            return Ok(stock.ToStockDTO());
         }
     }
 }
