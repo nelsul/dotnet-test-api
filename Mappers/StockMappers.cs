@@ -23,5 +23,18 @@ namespace MyTestApi.Mappers
                 CreatedAt = stock.CreatedAt,
             };
         }
+
+        public static Stock ToStock(this CreateStockDTO createStockDTO)
+        {
+            return new Stock
+            {
+                Symbol = createStockDTO.Symbol,
+                CompanyName = createStockDTO.CompanyName,
+                Purchase = createStockDTO.Purchase,
+                LastDiv = createStockDTO.LastDiv,
+                Industry = createStockDTO.Industry,
+                MarketCap = createStockDTO.MarketCap,
+            };
+        }
     }
 }

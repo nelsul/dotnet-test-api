@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyTestApi.Data;
+using MyTestApi.DTOs.Stock;
 using MyTestApi.Mappers;
 
 namespace MyTestApi.Controllers
@@ -41,6 +42,17 @@ namespace MyTestApi.Controllers
             }
 
             return Ok(stock.ToStockDTO());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateStockDTO createStockDTO)
+        {
+            var stock = createStockDTO.ToStock();
+
+            await _context.Stocks.AddAsync(stock);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetById), new { id = stock.Id }, stock.ToStockDTO());
         }
     }
 }
