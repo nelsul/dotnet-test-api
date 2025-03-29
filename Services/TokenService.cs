@@ -38,6 +38,7 @@ namespace MyTestApi.Services
                 Expires = DateTime.Now.AddDays(7),
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"],
+                SigningCredentials = creds,
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
