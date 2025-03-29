@@ -12,16 +12,21 @@ using MyTestApi.Mappers;
 
 namespace MyTestApi.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class StockController : ControllerBase
     {
         private readonly IStockRepository _stockRepo;
+        private readonly IWebHostEnvironment _env;
 
-        public StockController(IStockRepository stockRepo)
+        private readonly string _uploadPath;
+
+        public StockController(IStockRepository stockRepo, IWebHostEnvironment env)
         {
             _stockRepo = stockRepo;
+            _env = env;
+
+            _uploadPath = "/Users/nelsonneto/dev/dotnet/MyTest/uploads";
         }
 
         [HttpGet]
@@ -55,6 +60,42 @@ namespace MyTestApi.Controllers
             await _stockRepo.CreateAsync(stock);
 
             return CreatedAtAction(nameof(GetById), new { id = stock.Id }, stock.ToStockDTO());
+        }
+
+        [HttpPost("image-upload")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> ImageUpload([FromForm] StockImageDTO stockImageDTO)
+        {
+            var file = stockImageDTO.Image;
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file sent.");
+            }
+
+            try
+            {
+                var uploadPath = _uploadPath;
+
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                var filePath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return Ok(new { FileName = fileName });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao salvar a imagem: {ex.Message}");
+            }
         }
     }
 }
