@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ImageMagick;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -96,6 +97,39 @@ namespace MyTestApi.Controllers
             {
                 return StatusCode(500, $"Erro ao salvar a imagem: {ex.Message}");
             }
+        }
+
+        [HttpGet("image")]
+        public async Task<IActionResult> GetImage([FromQuery] GetStockImageDTO getStockImageDTO)
+        {
+            var filePath = Path.Combine(_uploadPath, getStockImageDTO.Filename!);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("Image not found.");
+            }
+
+            var magickImage = new MagickImage(filePath);
+
+            if (getStockImageDTO.Height.HasValue)
+            {
+                var size = new MagickGeometry(
+                    getStockImageDTO.Width ?? 200,
+                    getStockImageDTO.Height ?? 200
+                );
+                size.IgnoreAspectRatio = true;
+                magickImage.Resize(size);
+            }
+            else
+            {
+                magickImage.Resize(getStockImageDTO.Width ?? 200, 0);
+            }
+
+            using var ms = new MemoryStream();
+
+            await magickImage.WriteAsync(ms, MagickFormat.Jpeg);
+            ms.Seek(0, SeekOrigin.Begin);
+            return File(ms.ToArray(), "image/jpeg");
         }
     }
 }
