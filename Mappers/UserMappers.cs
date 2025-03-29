@@ -13,5 +13,15 @@ namespace MyTestApi.Mappers
         {
             return new AppUser { UserName = createUserDTO.Username, Email = createUserDTO.Email };
         }
+
+        public static UserDTO ToUserDTO(this AppUser user, string token)
+        {
+            return new UserDTO
+            {
+                Username = user.UserName!,
+                Email = user.Email!,
+                Token = token,
+            };
+        }
     }
 }

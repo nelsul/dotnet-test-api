@@ -6,6 +6,7 @@ using MyTestApi.Data;
 using MyTestApi.Interfaces;
 using MyTestApi.Models;
 using MyTestApi.Repositories;
+using MyTestApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +57,7 @@ builder
     });
 
 builder.Services.AddScoped<IStockRepository, StockRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
